@@ -12,10 +12,10 @@ library(tidyverse)
 ```
 
 ```{r load-data, echo=FALSE}
-mod_files <- list.files(path = "./output/bootstrap/mod/")
+mod_files <- list.files(path = "./output/bootstrap/")
 
 mods <- lapply(X = mod_files, function(X) {
-  MOD <- readRDS(paste0("./output/bootstrap/mod/", X))
+  MOD <- readRDS(paste0("./output/bootstrap/", X))
   return(MOD@estimates)
 })
 

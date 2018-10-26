@@ -1,10 +1,13 @@
-library(tidyverse)
-lambda_opts <- c("1","NorthCove")
-gamma_opts <- c("1","NorthCove","Year")
-omega_opts <- c("1","NorthCove","Year")
-detec_opts <- c("1","NorthCove","Year")
+# The purpose of thise script is to generate a list of formula combinations,
+# which can later be used for model fitting using unmarked::pcountOpen
 
-param_list <- list(lambda_opts, gamma_opts, omega_opts, detec_opts)
+library(tidyverse)
+lambda_opts  <- c("1","NorthCove")
+gamma_opts   <- c("1","NorthCove","Year")
+omega_opts   <- c("1","NorthCove","Year")
+detec_opts   <- c("1","NorthCove","Year")
+
+param_list   <- list(lambda_opts, gamma_opts, omega_opts, detec_opts)
 
 make_formula <- function(x) {
   suffix <- "~"

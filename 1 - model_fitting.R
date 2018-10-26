@@ -1,3 +1,6 @@
+# The purpose of this script is to fit a single model using unmarked::pcountOpen,
+# the model is chosen via command line argument
+
 # model number passed in from command line (number refers to a line in the "df_enum_formulas.RDS" file)
 # example - line 50 from df_enum_formulas.RDS: 
 
@@ -5,8 +8,6 @@
 # ~NorthCove    ~1          ~Year       ~NorthCove  50
 
 args <- commandArgs(TRUE)
-
-# counter indicates which model number
 counter <- as.integer(args[1])
 
 # install/load libraries tidyverse and unmarked

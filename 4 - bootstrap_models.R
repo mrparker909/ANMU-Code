@@ -1,3 +1,5 @@
+# The purpose of this script is to generate a single parametric bootstrap
+
 # input bootstrap iteration from command line
 args <- commandArgs(TRUE)
 

@@ -1,3 +1,5 @@
+# The purpose of this script is to generate breeding pair abundance estimates using productivity and area expansion
+
 library(unmarked)
 library(tidyverse)
 
@@ -26,7 +28,7 @@ our_abundance_estimates <- function( productivity1995, productivity2006 ) {
   
   df_productivity <- data.frame(Year=c(1995, 2006), Prod=c(productivity1995, productivity2006), ColonyArea=c(137600,125500))
   
-  # abundance estimates
+  # breeding pair abundance estimates
   pop_est <- df_chick %>% filter(Year %in% c(1995,2006)) %>%
     left_join(df_productivity, by="Year") %>%
     mutate(
@@ -40,7 +42,7 @@ our_abundance_estimates <- function( productivity1995, productivity2006 ) {
   return(pop_est)
 }
 
-
+# calculate abundance estimates given productivity for 1995 and 2006
 our_abundance_estimates(1.49, 1.1)
 our_abundance_estimates(1.54, 1.54)
 
