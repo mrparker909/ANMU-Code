@@ -1,0 +1,361 @@
+---
+title: "Best Model Bootstrap Analysis"
+author: "Matthew Parker"
+date: "October 2, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(unmarked)
+library(tidyverse)
+```
+
+```{r load-data, echo=FALSE}
+mod_files <- list.files(path = "./output/bootstrap/mod/")
+
+mods <- lapply(X = mod_files, function(X) {
+  MOD <- readRDS(paste0("./output/bootstrap/mod/", X))
+  return(MOD@estimates)
+})
+
+saveRDS(mods, "./temp_bootstrap_mods.RDS")
+mods <- readRDS("./temp_bootstrap_mods.RDS")
+```
+
+```{r extract-estimates, echo=FALSE}
+lams <- list()
+pdet <- list()
+omeg <- list()
+gamm <- list()
+
+for(i in 1:length(mods)) {
+  lams[[i]] <- mods[[i]]@estimates$lambda@estimates
+  gamm[[i]] <- mods[[i]]@estimates$gamma@estimates
+  omeg[[i]] <- mods[[i]]@estimates$omega@estimates
+  pdet[[i]] <- mods[[i]]@estimates$det@estimates
+}
+```
+
+# Details
+
+Bootstrap of `r length(lams)` populations generated from the parameter estimates of mod_54 (from the optim1000 run). mod_54 is the best model among fitted models as selected by BIC ranking.
+
+# Bootstrap Summary
+
+```{r lambda-fivenums,echo=FALSE}
+lam_NC <- exp(unlist(lams)[seq(1,length(unlist(lams)),2)]+unlist(lams)[seq(0,length(unlist(lams)),2)])
+lam_CC <- exp(unlist(lams)[seq(1,length(unlist(lams)),2)])
+fivenums_NC <- fivenum(lam_NC)
+fivenums_CC <- fivenum(lam_CC)
+NC_sd <- sd(lam_NC)
+CC_sd <- sd(lam_CC)
+NC_2.5 <- quantile(lam_NC, 0.025)
+NC_97.5 <- quantile(lam_NC, 0.975)
+CC_2.5 <- quantile(lam_CC, 0.025)
+CC_97.5 <- quantile(lam_CC, 0.975)
+
+df_lambda <- data.frame(parameter=c("lam_NC","lam_CC"), 
+                        stan_dev=c(NC_sd, CC_sd),
+                        min=c(fivenums_NC[1],fivenums_CC[1]),
+                        Q2.5=c(NC_2.5, CC_2.5),
+                        Q25=c(fivenums_NC[2],fivenums_CC[2]),
+                        median=c(fivenums_NC[3],fivenums_CC[3]),
+                        Q75=c(fivenums_NC[4],fivenums_CC[4]),
+                        Q97.5=c(NC_97.5, CC_97.5),
+                        max=c(fivenums_NC[5],fivenums_CC[5]))
+knitr::kable(df_lambda, digits = 2)
+```
+
+
+
+
+```{r pdet-fivenums, echo=FALSE}
+p_NC <- plogis(unlist(pdet)[seq(1,length(unlist(pdet)),2)]+unlist(pdet)[seq(0,length(unlist(pdet)),2)])
+p_CC <- plogis(unlist(pdet)[seq(1,length(unlist(pdet)),2)])
+fivenums_NC <- fivenum(p_NC)
+fivenums_CC <- fivenum(p_CC)
+NC_sd <- sd(p_NC)
+CC_sd <- sd(p_CC)
+NC_2.5 <- quantile(p_NC, 0.025)
+NC_97.5 <- quantile(p_NC, 0.975)
+CC_2.5 <- quantile(p_CC, 0.025)
+CC_97.5 <- quantile(p_CC, 0.975)
+
+df_pdet   <- data.frame(parameter=c("pdet_NC","pdet_CC"), 
+                        stan_dev=c(NC_sd, CC_sd),
+                        min=c(fivenums_NC[1],fivenums_CC[1]),
+                        Q2.5=c(NC_2.5, CC_2.5),
+                        Q25=c(fivenums_NC[2],fivenums_CC[2]),
+                        median=c(fivenums_NC[3],fivenums_CC[3]),
+                        Q75=c(fivenums_NC[4],fivenums_CC[4]),
+                        Q97.5=c(NC_97.5, CC_97.5),
+                        max=c(fivenums_NC[5],fivenums_CC[5]))
+knitr::kable(df_pdet, digits=2)
+```
+
+
+
+
+```{r omeg-fivenums, echo=FALSE}
+omeg_1990 <- plogis(unlist(omeg)[seq(1,length(unlist(omeg)),16)])
+omeg_1991 <- plogis(unlist(omeg)[seq(1,length(unlist(omeg)),16)]+unlist(omeg)[seq(2,length(unlist(omeg)),16)])
+omeg_1992 <- plogis(unlist(omeg)[seq(1,length(unlist(omeg)),16)]+unlist(omeg)[seq(3,length(unlist(omeg)),16)])
+omeg_1993 <- plogis(unlist(omeg)[seq(1,length(unlist(omeg)),16)]+unlist(omeg)[seq(4,length(unlist(omeg)),16)])
+omeg_1994 <- plogis(unlist(omeg)[seq(1,length(unlist(omeg)),16)]+unlist(omeg)[seq(5,length(unlist(omeg)),16)])
+omeg_1995 <- plogis(unlist(omeg)[seq(1,length(unlist(omeg)),16)]+unlist(omeg)[seq(6,length(unlist(omeg)),16)])
+omeg_1996 <- plogis(unlist(omeg)[seq(1,length(unlist(omeg)),16)]+unlist(omeg)[seq(7,length(unlist(omeg)),16)])
+omeg_1997 <- plogis(unlist(omeg)[seq(1,length(unlist(omeg)),16)]+unlist(omeg)[seq(8,length(unlist(omeg)),16)])
+omeg_1998 <- plogis(unlist(omeg)[seq(1,length(unlist(omeg)),16)]+unlist(omeg)[seq(9,length(unlist(omeg)),16)])
+omeg_1999 <- plogis(unlist(omeg)[seq(1,length(unlist(omeg)),16)]+unlist(omeg)[seq(10,length(unlist(omeg)),16)])
+omeg_2000 <- plogis(unlist(omeg)[seq(1,length(unlist(omeg)),16)]+unlist(omeg)[seq(11,length(unlist(omeg)),16)])
+omeg_2001 <- plogis(unlist(omeg)[seq(1,length(unlist(omeg)),16)]+unlist(omeg)[seq(12,length(unlist(omeg)),16)])
+omeg_2002 <- plogis(unlist(omeg)[seq(1,length(unlist(omeg)),16)]+unlist(omeg)[seq(13,length(unlist(omeg)),16)])
+omeg_2003 <- plogis(unlist(omeg)[seq(1,length(unlist(omeg)),16)]+unlist(omeg)[seq(14,length(unlist(omeg)),16)])
+omeg_2004 <- plogis(unlist(omeg)[seq(1,length(unlist(omeg)),16)]+unlist(omeg)[seq(15,length(unlist(omeg)),16)])
+omeg_2005 <- plogis(unlist(omeg)[seq(1,length(unlist(omeg)),16)]+unlist(omeg)[seq(16,length(unlist(omeg)),16)])
+
+
+fivenums_1990 <- fivenum(omeg_1990)
+omeg_1990_sd  <- sd(omeg_1990)
+omeg_1990_2.5  <- quantile(omeg_1990, 0.025)
+omeg_1990_97.5 <- quantile(omeg_1990, 0.975)
+
+fivenums_1991 <- fivenum(omeg_1991)
+omeg_1991_sd  <- sd(omeg_1991)
+omeg_1991_2.5  <- quantile(omeg_1991, 0.025)
+omeg_1991_97.5 <- quantile(omeg_1991, 0.975)
+
+fivenums_1992 <- fivenum(omeg_1992)
+omeg_1992_sd  <- sd(omeg_1992)
+omeg_1992_2.5  <- quantile(omeg_1992, 0.025)
+omeg_1992_97.5 <- quantile(omeg_1992, 0.975)
+
+fivenums_1993 <- fivenum(omeg_1993)
+omeg_1993_sd  <- sd(omeg_1993)
+omeg_1993_2.5  <- quantile(omeg_1993, 0.025)
+omeg_1993_97.5 <- quantile(omeg_1993, 0.975)
+
+fivenums_1994 <- fivenum(omeg_1994)
+omeg_1994_sd  <- sd(omeg_1994)
+omeg_1994_2.5  <- quantile(omeg_1994, 0.025)
+omeg_1994_97.5 <- quantile(omeg_1994, 0.975)
+
+fivenums_1995 <- fivenum(omeg_1995)
+omeg_1995_sd  <- sd(omeg_1995)
+omeg_1995_2.5  <- quantile(omeg_1995, 0.025)
+omeg_1995_97.5 <- quantile(omeg_1995, 0.975)
+
+fivenums_1996 <- fivenum(omeg_1996)
+omeg_1996_sd  <- sd(omeg_1996)
+omeg_1996_2.5  <- quantile(omeg_1996, 0.025)
+omeg_1996_97.5 <- quantile(omeg_1996, 0.975)
+
+fivenums_1997 <- fivenum(omeg_1997)
+omeg_1997_sd  <- sd(omeg_1997)
+omeg_1997_2.5  <- quantile(omeg_1997, 0.025)
+omeg_1997_97.5 <- quantile(omeg_1997, 0.975)
+
+fivenums_1998 <- fivenum(omeg_1998)
+omeg_1998_sd  <- sd(omeg_1998)
+omeg_1998_2.5  <- quantile(omeg_1998, 0.025)
+omeg_1998_97.5 <- quantile(omeg_1998, 0.975)
+
+fivenums_1999 <- fivenum(omeg_1999)
+omeg_1999_sd  <- sd(omeg_1999)
+omeg_1999_2.5  <- quantile(omeg_1999, 0.025)
+omeg_1999_97.5 <- quantile(omeg_1999, 0.975)
+
+fivenums_2000 <- fivenum(omeg_2000)
+omeg_2000_sd  <- sd(omeg_2000)
+omeg_2000_2.5  <- quantile(omeg_2000, 0.025)
+omeg_2000_97.5 <- quantile(omeg_2000, 0.975)
+
+fivenums_2001 <- fivenum(omeg_2001)
+omeg_2001_sd  <- sd(omeg_2001)
+omeg_2001_2.5  <- quantile(omeg_2001, 0.025)
+omeg_2001_97.5 <- quantile(omeg_2001, 0.975)
+
+fivenums_2002 <- fivenum(omeg_2002)
+omeg_2002_sd  <- sd(omeg_2002)
+omeg_2002_2.5  <- quantile(omeg_2002, 0.025)
+omeg_2002_97.5 <- quantile(omeg_2002, 0.975)
+
+fivenums_2003 <- fivenum(omeg_2003)
+omeg_2003_sd  <- sd(omeg_2003)
+omeg_2003_2.5  <- quantile(omeg_2003, 0.025)
+omeg_2003_97.5 <- quantile(omeg_2003, 0.975)
+
+fivenums_2004 <- fivenum(omeg_2004)
+omeg_2004_sd  <- sd(omeg_2004)
+omeg_2004_2.5  <- quantile(omeg_2004, 0.025)
+omeg_2004_97.5 <- quantile(omeg_2004, 0.975)
+
+fivenums_2005 <- fivenum(omeg_2005)
+omeg_2005_sd  <- sd(omeg_2005)
+omeg_2005_2.5  <- quantile(omeg_2005, 0.025)
+omeg_2005_97.5 <- quantile(omeg_2005, 0.975)
+
+
+df_omeg   <- data.frame(parameter=c("omeg_1990","omeg_1991","omeg_1992","omeg_1993","omeg_1994","omeg_1995","omeg_1996","omeg_1997","omeg_1998","omeg_1999","omeg_2000","omeg_2001","omeg_2002","omeg_2003","omeg_2004","omeg_2005"), 
+                        stan_dev=c(omeg_1990_sd,omeg_1991_sd,omeg_1992_sd,omeg_1993_sd,omeg_1994_sd,omeg_1995_sd,omeg_1996_sd,omeg_1997_sd,omeg_1998_sd,omeg_1999_sd,omeg_2000_sd,omeg_2001_sd,omeg_2002_sd,omeg_2003_sd,omeg_2004_sd,omeg_2005_sd),
+                        min=c(fivenums_1990[1],fivenums_1991[1],fivenums_1992[1],fivenums_1993[1],fivenums_1994[1],fivenums_1995[1],fivenums_1996[1],fivenums_1997[1],fivenums_1998[1],fivenums_1999[1],fivenums_2000[1],fivenums_2001[1],fivenums_2002[1],fivenums_2003[1],fivenums_2004[1],fivenums_2005[1]),
+                        Q2.5=c(omeg_1990_2.5,omeg_1991_2.5,omeg_1992_2.5,omeg_1993_2.5,omeg_1994_2.5,omeg_1995_2.5,omeg_1996_2.5,omeg_1997_2.5,omeg_1998_2.5,omeg_1999_2.5,omeg_2000_2.5,omeg_2001_2.5,omeg_2002_2.5,omeg_2003_2.5,omeg_2004_2.5,omeg_2005_2.5),
+                        Q25=c(fivenums_1990[2],fivenums_1991[2],fivenums_1992[2],fivenums_1993[2],fivenums_1994[2],fivenums_1995[2],fivenums_1996[2],fivenums_1997[2],fivenums_1998[2],fivenums_1999[2],fivenums_2000[2],fivenums_2001[2],fivenums_2002[2],fivenums_2003[2],fivenums_2004[2],fivenums_2005[2]),
+                        median=c(fivenums_1990[3],fivenums_1991[3],fivenums_1992[3],fivenums_1993[3],fivenums_1994[3],fivenums_1995[3],fivenums_1996[3],fivenums_1997[3],fivenums_1998[3],fivenums_1999[3],fivenums_2000[3],fivenums_2001[3],fivenums_2002[3],fivenums_2003[3],fivenums_2004[3],fivenums_2005[3]),
+                        Q75=c(fivenums_1990[4],fivenums_1991[4],fivenums_1992[4],fivenums_1993[4],fivenums_1994[4],fivenums_1995[4],fivenums_1996[4],fivenums_1997[4],fivenums_1998[4],fivenums_1999[4],fivenums_2000[4],fivenums_2001[4],fivenums_2002[4],fivenums_2003[4],fivenums_2004[4],fivenums_2005[4]),
+                        Q97.5=c(omeg_1990_97.5,omeg_1991_97.5,omeg_1992_97.5,omeg_1993_97.5,omeg_1994_97.5,omeg_1995_97.5,omeg_1996_97.5,omeg_1997_97.5,omeg_1998_97.5,omeg_1999_97.5,omeg_2000_97.5,omeg_2001_97.5,omeg_2002_97.5,omeg_2003_97.5,omeg_2004_97.5,omeg_2005_97.5),
+                        max=c(fivenums_1990[5],fivenums_1991[5],fivenums_1992[5],fivenums_1993[5],fivenums_1994[5],fivenums_1995[5],fivenums_1996[5],fivenums_1997[5],fivenums_1998[5],fivenums_1999[5],fivenums_2000[5],fivenums_2001[5],fivenums_2002[5],fivenums_2003[5],fivenums_2004[5],fivenums_2005[5]))
+knitr::kable(df_omeg, digits=2)
+```
+
+
+
+
+```{r gamm-fivenums, echo=FALSE}
+gamm_1990 <- exp(unlist(gamm)[seq(1,length(unlist(gamm)),16)])
+gamm_1991 <- exp(unlist(gamm)[seq(1,length(unlist(gamm)),16)]+unlist(gamm)[seq(2,length(unlist(gamm)),16)])
+gamm_1992 <- exp(unlist(gamm)[seq(1,length(unlist(gamm)),16)]+unlist(gamm)[seq(3,length(unlist(gamm)),16)])
+gamm_1993 <- exp(unlist(gamm)[seq(1,length(unlist(gamm)),16)]+unlist(gamm)[seq(4,length(unlist(gamm)),16)])
+gamm_1994 <- exp(unlist(gamm)[seq(1,length(unlist(gamm)),16)]+unlist(gamm)[seq(5,length(unlist(gamm)),16)])
+gamm_1995 <- exp(unlist(gamm)[seq(1,length(unlist(gamm)),16)]+unlist(gamm)[seq(6,length(unlist(gamm)),16)])
+gamm_1996 <- exp(unlist(gamm)[seq(1,length(unlist(gamm)),16)]+unlist(gamm)[seq(7,length(unlist(gamm)),16)])
+gamm_1997 <- exp(unlist(gamm)[seq(1,length(unlist(gamm)),16)]+unlist(gamm)[seq(8,length(unlist(gamm)),16)])
+gamm_1998 <- exp(unlist(gamm)[seq(1,length(unlist(gamm)),16)]+unlist(gamm)[seq(9,length(unlist(gamm)),16)])
+gamm_1999 <- exp(unlist(gamm)[seq(1,length(unlist(gamm)),16)]+unlist(gamm)[seq(10,length(unlist(gamm)),16)])
+gamm_2000 <- exp(unlist(gamm)[seq(1,length(unlist(gamm)),16)]+unlist(gamm)[seq(11,length(unlist(gamm)),16)])
+gamm_2001 <- exp(unlist(gamm)[seq(1,length(unlist(gamm)),16)]+unlist(gamm)[seq(12,length(unlist(gamm)),16)])
+gamm_2002 <- exp(unlist(gamm)[seq(1,length(unlist(gamm)),16)]+unlist(gamm)[seq(13,length(unlist(gamm)),16)])
+gamm_2003 <- exp(unlist(gamm)[seq(1,length(unlist(gamm)),16)]+unlist(gamm)[seq(14,length(unlist(gamm)),16)])
+gamm_2004 <- exp(unlist(gamm)[seq(1,length(unlist(gamm)),16)]+unlist(gamm)[seq(15,length(unlist(gamm)),16)])
+gamm_2005 <- exp(unlist(gamm)[seq(1,length(unlist(gamm)),16)]+unlist(gamm)[seq(16,length(unlist(gamm)),16)])
+
+
+fivenums_1990 <- fivenum(gamm_1990)
+gamm_1990_sd  <- sd(gamm_1990)
+gamm_1990_2.5  <- quantile(gamm_1990, 0.025)
+gamm_1990_97.5 <- quantile(gamm_1990, 0.975)
+
+fivenums_1991 <- fivenum(gamm_1991)
+gamm_1991_sd  <- sd(gamm_1991)
+gamm_1991_2.5  <- quantile(gamm_1991, 0.025)
+gamm_1991_97.5 <- quantile(gamm_1991, 0.975)
+
+fivenums_1992 <- fivenum(gamm_1992)
+gamm_1992_sd  <- sd(gamm_1992)
+gamm_1992_2.5  <- quantile(gamm_1992, 0.025)
+gamm_1992_97.5 <- quantile(gamm_1992, 0.975)
+
+fivenums_1993 <- fivenum(gamm_1993)
+gamm_1993_sd  <- sd(gamm_1993)
+gamm_1993_2.5  <- quantile(gamm_1993, 0.025)
+gamm_1993_97.5 <- quantile(gamm_1993, 0.975)
+
+fivenums_1994 <- fivenum(gamm_1994)
+gamm_1994_sd  <- sd(gamm_1994)
+gamm_1994_2.5  <- quantile(gamm_1994, 0.025)
+gamm_1994_97.5 <- quantile(gamm_1994, 0.975)
+
+fivenums_1995 <- fivenum(gamm_1995)
+gamm_1995_sd  <- sd(gamm_1995)
+gamm_1995_2.5  <- quantile(gamm_1995, 0.025)
+gamm_1995_97.5 <- quantile(gamm_1995, 0.975)
+
+fivenums_1996 <- fivenum(gamm_1996)
+gamm_1996_sd  <- sd(gamm_1996)
+gamm_1996_2.5  <- quantile(gamm_1996, 0.025)
+gamm_1996_97.5 <- quantile(gamm_1996, 0.975)
+
+fivenums_1997 <- fivenum(gamm_1997)
+gamm_1997_sd  <- sd(gamm_1997)
+gamm_1997_2.5  <- quantile(gamm_1997, 0.025)
+gamm_1997_97.5 <- quantile(gamm_1997, 0.975)
+
+fivenums_1998 <- fivenum(gamm_1998)
+gamm_1998_sd  <- sd(gamm_1998)
+gamm_1998_2.5  <- quantile(gamm_1998, 0.025)
+gamm_1998_97.5 <- quantile(gamm_1998, 0.975)
+
+fivenums_1999 <- fivenum(gamm_1999)
+gamm_1999_sd  <- sd(gamm_1999)
+gamm_1999_2.5  <- quantile(gamm_1999, 0.025)
+gamm_1999_97.5 <- quantile(gamm_1999, 0.975)
+
+fivenums_2000 <- fivenum(gamm_2000)
+gamm_2000_sd  <- sd(gamm_2000)
+gamm_2000_2.5  <- quantile(gamm_2000, 0.025)
+gamm_2000_97.5 <- quantile(gamm_2000, 0.975)
+
+fivenums_2001 <- fivenum(gamm_2001)
+gamm_2001_sd  <- sd(gamm_2001)
+gamm_2001_2.5  <- quantile(gamm_2001, 0.025)
+gamm_2001_97.5 <- quantile(gamm_2001, 0.975)
+
+fivenums_2002 <- fivenum(gamm_2002)
+gamm_2002_sd  <- sd(gamm_2002)
+gamm_2002_2.5  <- quantile(gamm_2002, 0.025)
+gamm_2002_97.5 <- quantile(gamm_2002, 0.975)
+
+fivenums_2003 <- fivenum(gamm_2003)
+gamm_2003_sd  <- sd(gamm_2003)
+gamm_2003_2.5  <- quantile(gamm_2003, 0.025)
+gamm_2003_97.5 <- quantile(gamm_2003, 0.975)
+
+fivenums_2004 <- fivenum(gamm_2004)
+gamm_2004_sd  <- sd(gamm_2004)
+gamm_2004_2.5  <- quantile(gamm_2004, 0.025)
+gamm_2004_97.5 <- quantile(gamm_2004, 0.975)
+
+fivenums_2005 <- fivenum(gamm_2005)
+gamm_2005_sd  <- sd(gamm_2005)
+gamm_2005_2.5  <- quantile(gamm_2005, 0.025)
+gamm_2005_97.5 <- quantile(gamm_2005, 0.975)
+
+
+df_gamm   <- data.frame(parameter=c("gamm_1990","gamm_1991","gamm_1992","gamm_1993","gamm_1994","gamm_1995","gamm_1996","gamm_1997","gamm_1998","gamm_1999","gamm_2000","gamm_2001","gamm_2002","gamm_2003","gamm_2004","gamm_2005"), 
+                        stan_dev=c(gamm_1990_sd,gamm_1991_sd,gamm_1992_sd,gamm_1993_sd,gamm_1994_sd,gamm_1995_sd,gamm_1996_sd,gamm_1997_sd,gamm_1998_sd,gamm_1999_sd,gamm_2000_sd,gamm_2001_sd,gamm_2002_sd,gamm_2003_sd,gamm_2004_sd,gamm_2005_sd),
+                        min=c(fivenums_1990[1],fivenums_1991[1],fivenums_1992[1],fivenums_1993[1],fivenums_1994[1],fivenums_1995[1],fivenums_1996[1],fivenums_1997[1],fivenums_1998[1],fivenums_1999[1],fivenums_2000[1],fivenums_2001[1],fivenums_2002[1],fivenums_2003[1],fivenums_2004[1],fivenums_2005[1]),
+                        Q2.5=c(gamm_1990_2.5,gamm_1991_2.5,gamm_1992_2.5,gamm_1993_2.5,gamm_1994_2.5,gamm_1995_2.5,gamm_1996_2.5,gamm_1997_2.5,gamm_1998_2.5,gamm_1999_2.5,gamm_2000_2.5,gamm_2001_2.5,gamm_2002_2.5,gamm_2003_2.5,gamm_2004_2.5,gamm_2005_2.5),
+                        Q25=c(fivenums_1990[2],fivenums_1991[2],fivenums_1992[2],fivenums_1993[2],fivenums_1994[2],fivenums_1995[2],fivenums_1996[2],fivenums_1997[2],fivenums_1998[2],fivenums_1999[2],fivenums_2000[2],fivenums_2001[2],fivenums_2002[2],fivenums_2003[2],fivenums_2004[2],fivenums_2005[2]),
+                        median=c(fivenums_1990[3],fivenums_1991[3],fivenums_1992[3],fivenums_1993[3],fivenums_1994[3],fivenums_1995[3],fivenums_1996[3],fivenums_1997[3],fivenums_1998[3],fivenums_1999[3],fivenums_2000[3],fivenums_2001[3],fivenums_2002[3],fivenums_2003[3],fivenums_2004[3],fivenums_2005[3]),
+                        Q75=c(fivenums_1990[4],fivenums_1991[4],fivenums_1992[4],fivenums_1993[4],fivenums_1994[4],fivenums_1995[4],fivenums_1996[4],fivenums_1997[4],fivenums_1998[4],fivenums_1999[4],fivenums_2000[4],fivenums_2001[4],fivenums_2002[4],fivenums_2003[4],fivenums_2004[4],fivenums_2005[4]),
+                        Q97.5=c(gamm_1990_97.5,gamm_1991_97.5,gamm_1992_97.5,gamm_1993_97.5,gamm_1994_97.5,gamm_1995_97.5,gamm_1996_97.5,gamm_1997_97.5,gamm_1998_97.5,gamm_1999_97.5,gamm_2000_97.5,gamm_2001_97.5,gamm_2002_97.5,gamm_2003_97.5,gamm_2004_97.5,gamm_2005_97.5),
+                        max=c(fivenums_1990[5],fivenums_1991[5],fivenums_1992[5],fivenums_1993[5],fivenums_1994[5],fivenums_1995[5],fivenums_1996[5],fivenums_1997[5],fivenums_1998[5],fivenums_1999[5],fivenums_2000[5],fivenums_2001[5],fivenums_2002[5],fivenums_2003[5],fivenums_2004[5],fivenums_2005[5]))
+knitr::kable(df_gamm, digits=2)
+```
+
+# 95\% Confidence Intervals
+
+```{r lambda-CI,echo=FALSE}
+df_lambda_CI <- data.frame(parameter=c("lam_NC","lam_CC"),
+                           CI_95_low=df_lambda$Q2.5,
+                           CI_95_upp=df_lambda$Q97.5)
+
+knitr::kable(df_lambda_CI, digits = 2)
+```
+
+```{r pdet-CI, echo=FALSE}
+df_pdet_CI <- data.frame(parameter=c("p_NC","p_CC"),
+                           CI_95_low=df_pdet$Q2.5,
+                           CI_95_upp=df_pdet$Q97.5)
+
+knitr::kable(df_pdet_CI, digits=2)
+```
+
+```{r omeg-CI, echo=FALSE}
+df_omeg_CI <- data.frame(parameter=c("omeg_1990","omeg_1991","omeg_1992","omeg_1993","omeg_1994","omeg_1995","omeg_1996","omeg_1997","omeg_1998","omeg_1999","omeg_2000","omeg_2001","omeg_2002","omeg_2003","omeg_2004","omeg_2005"),
+                           CI_95_low=df_omeg$Q2.5,
+                           CI_95_upp=df_omeg$Q97.5)
+
+knitr::kable(df_omeg_CI, digits=2)
+```
+
+
+
+```{r gamm-CI, echo=FALSE}
+df_gamm_CI <- data.frame(parameter=c("gamm_1990","gamm_1991","gamm_1992","gamm_1993","gamm_1994","gamm_1995","gamm_1996","gamm_1997","gamm_1998","gamm_1999","gamm_2000","gamm_2001","gamm_2002","gamm_2003","gamm_2004","gamm_2005"),
+                           CI_95_low=df_gamm$Q2.5,
+                           CI_95_upp=df_gamm$Q97.5)
+
+knitr::kable(df_gamm_CI, digits=2)
+```
